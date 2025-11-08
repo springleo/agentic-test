@@ -34,6 +34,7 @@ jobs:
         run: mvn -B package
 
   predictive-analysis:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -51,6 +52,12 @@ jobs:
 
       - name: Run agent.py
         run: python agent.py
+
+      - name: Install MCP
+        run: pip install mcp
+
+      - name: Start MCP server
+        run: mcp server --port 8080 &
 
       - name: Invoke MCP GitHub Server
         run: |
