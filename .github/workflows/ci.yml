@@ -51,15 +51,31 @@ jobs:
           pip install -r requirements.txt
 
       
-      - name: Install MCP
-        run: pip install mcp[cli]
+      - name: Start official GitHub MCP server (if secret provided)
+        if: ${{ secrets.AGENTIC_TOKEN != '' }}
+        env:
+          GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.AGENTIC_TOKEN }}
+          # optionally set GITHUB_HOST via a repo secret if using GHES
+          GITHUB_HOST: ${{ secrets.AGENTIC_HOST || '' }}
+        run: |
+          # Start official GitHub MCP container as a background service
+          docker run -d --name github-mcp \
+            -e GITHUB_PERSONAL_ACCESS_TOKEN="$GITHUB_PERSONAL_ACCESS_TOKEN" \
+            -e GITHUB_HOST="$GITHUB_HOST" \
+            -p 8080:8080 \
+            ghcr.io/github/github-mcp-server
+          # wait briefly for the server to be ready
+          sleep 5
 
-      - name: Start MCP server
-        run: mcp server --port 8080 &
+      - name: Start mock MCP server (when no official MCP token)
+        if: ${{ secrets.AGENTIC_TOKEN == '' }}
+        run: |
+          python mcp_mock.py --port 8080 &
+          sleep 1
 
-        
-      - name: Run agent.py
-        run: python agent.py
+      - name: Run agent.py (call MCP at localhost)
+        run: |
+          ./agent.py --repo "${{ github.repository }}" --mcp-url http://127.0.0.1:8080
 
       # - name: Invoke MCP GitHub Server
       #   run: |
