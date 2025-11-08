@@ -50,18 +50,20 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run agent.py
-        run: python agent.py
-
+      
       - name: Install MCP
         run: pip install mcp
 
       - name: Start MCP server
         run: mcp server --port 8080 &
 
-      - name: Invoke MCP GitHub Server
-        run: |
-          mcp connect github \
-            --token ${{ secrets.AGENTIC_TOKEN }} \
-            --repo my-org/my-repo \
-            --invoke analyze_pr --params '{"branch": "main"}'
+        
+      - name: Run agent.py
+        run: python agent.py
+
+      # - name: Invoke MCP GitHub Server
+      #   run: |
+      #     mcp connect github \
+      #       --token ${{ secrets.AGENTIC_TOKEN }} \
+      #       --repo my-org/my-repo \
+      #       --invoke analyze_pr --params '{"branch": "main"}'
