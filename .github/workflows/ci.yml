@@ -52,7 +52,7 @@ jobs:
 
       
       - name: Install MCP
-        run: pip install mcp
+        run: pip install mcp[cli]
 
       - name: Start MCP server
         run: mcp server --port 8080 &
