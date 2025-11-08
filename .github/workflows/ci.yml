@@ -71,6 +71,20 @@ jobs:
           fi
         shell: bash
 
+      - name: Wait for MCP to be ready
+        run: |
+          echo "Waiting for MCP at http://127.0.0.1:8080..."
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8080/ >/dev/null 2>&1; then
+              echo "MCP is up"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "MCP did not become ready after 30s" >&2
+          exit 1
+        shell: bash
+
       - name: Run agent.py (call MCP at localhost)
         run: |
           ./agent.py --repo "${{ github.repository }}" --mcp-url http://127.0.0.1:8080
